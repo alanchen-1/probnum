@@ -174,9 +174,7 @@ def problinsolve(
         _assume_A_tmp = _assume_A_tmp.replace(allowed_str, "")
     if _assume_A_tmp != "":
         raise ValueError(
-            "Assumption '{}' contains unrecognized linear operator properties.".format(
-                assume_A
-            )
+            f"Assumption '{assume_A}' contains unrecognized linear operator properties."
         )
 
     # Transform the linear system to an appropriate form
@@ -421,16 +419,12 @@ def _init_solver(A, b, A0, Ainv0, x0, assume_A):
     if isinstance(x0, randvars.RandomVariable):
         raise NotImplementedError
     # Matrix-based view
-    else:
-        if "sym" in assume_A and "pos" in assume_A:
-            if "noise" in assume_A:
-                raise NotImplementedError
-            else:
-                return SymmetricMatrixBasedSolver(A=A, b=b, x0=x0, A0=A0, Ainv0=Ainv0)
-        elif "sym" not in assume_A and "pos" in assume_A:
+    if "sym" in assume_A and "pos" in assume_A:
+        if "noise" in assume_A:
             raise NotImplementedError
-        else:
-            raise NotImplementedError
+        return SymmetricMatrixBasedSolver(A=A, b=b, x0=x0, A0=A0, Ainv0=Ainv0)
+
+    raise NotImplementedError
 
 
 def _postprocess(info, A):
@@ -471,9 +465,9 @@ def _postprocess(info, A):
     if rel_cond is not None and 1 / rel_cond < machine_eps:
         warnings.warn(
             (
-                "Ill-conditioned matrix detected (estimated rcond={:.6g}). "
+                f"Ill-conditioned matrix detected (estimated rcond={rel_cond:.6g}). "
                 "Results are likely inaccurate."
-            ).format(rel_cond),
+            ),
             scipy.linalg.LinAlgWarning,
             stacklevel=3,
         )
